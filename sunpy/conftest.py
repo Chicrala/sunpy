@@ -5,11 +5,6 @@ import importlib
 
 import pytest
 
-import sunpy.tests.helpers
-from sunpy.tests.hash import HASH_LIBRARY_NAME
-from sunpy.tests.helpers import new_hash_library, generate_figure_webpage
-from sunpy.util.exceptions import SunpyDeprecationWarning
-
 # Force MPL to use non-gui backends for testing.
 try:
     import matplotlib
@@ -17,6 +12,11 @@ except ImportError:
     pass
 else:
     matplotlib.use('Agg')
+
+import sunpy.tests.helpers
+from sunpy.tests.hash import HASH_LIBRARY_NAME
+from sunpy.tests.helpers import new_hash_library, generate_figure_webpage
+from sunpy.util.exceptions import SunpyDeprecationWarning
 
 
 remotedata_spec = importlib.util.find_spec("pytest_remotedata")
@@ -38,7 +38,7 @@ def pytest_runtest_setup(item):
     pytest hook to skip all tests that have the mark 'remotedata' if the
     pytest_remotedata plugin is not installed.
     """
-    if isinstance(item, item.Function):
+    if isinstance(item, pytest.Function):
         if 'remote_data' in item.keywords and not HAVE_REMOTEDATA:
             pytest.skip("skipping remotedata tests as pytest-remotedata is not installed")
 

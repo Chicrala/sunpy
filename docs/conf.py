@@ -69,10 +69,10 @@ if on_rtd:
     os.environ['LC_ALL'] = 'C'
 
 try:
-    import suds
+    import zeep
 except ImportError:
-    print('ERROR: suds could not be imported. Building the documentation requires '
-          'the "suds-jerko" package to be installed')
+    print('ERROR: zeep could not be imported. Building the documentation requires '
+          'the "zeep" package to be installed')
     sys.exit(1)
 
 try:
@@ -190,6 +190,7 @@ try:
             source[0] = rendered
 except ImportError:
     has_yaml = False
+    html_context = {}
     print('Warning: Stability of SunPy API page of the documentation requires the ruamel.yaml package to be installed')
 
 # The name of an image file (within the static path) to use as favicon of the
