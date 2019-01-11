@@ -20,9 +20,10 @@ Jsoc and VSO attributes for searches and filtering searches_.
 ###############################################################################
 #Importing the required modules.
 import matplotlib.pyplot as plt
+import astropy.units as u
+
 import sunpy.map
 from sunpy.net import Fido, attrs as a
-import astropy.units as u
 
 ###############################################################################
 # Downloading data with fido
