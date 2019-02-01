@@ -1,4 +1,8 @@
 import pytest
+import unittest
+import mock
+from unittest.mock import patch
+from unittest.mock import MagicMock
 
 import astropy.units as u
 from astropy.time import TimeDelta
@@ -64,6 +68,27 @@ def test_query(time, wave):
         #  and the end time equal or smaller.
         # hypothesis can give same start-end, but the query will give you from start to end (so +1)
         assert qr1.time_range().end <= time.end + TimeDelta(1*u.day)
+        
+#@patch('sunpy.net.dataretriever.sources.norh.NoRHClient.search', return_value='www.example.com')
+def test_query_mock(time, wave):
+    # Creating a context for this mock.
+    with mock.patch('sunpy.net.dataretriever.sources.norh.NoRHClient.search', 
+                    return_value='www.example.com') as mock_search:
+        
+        # Defining the atributes of it.
+        mock_search.instance = QueryResponse
+        
+        qr1 = norh.NoRHClient().search(time, a.Instrument('norh'), wave)
+        assert isinstance(qr1, QueryResponse)
+        # Not all hypothesis queries are going to produce results, and
+        if qr1:
+            # There are no observations everyday
+            #  so the results found have to be equal or later than the queried time
+            #  (looking at the date because it may search for miliseconds, but only date is available)
+            assert qr1.time_range().start.strftime('%Y-%m-%d') >= time.start.strftime('%Y-%m-%d')
+            #  and the end time equal or smaller.
+            # hypothesis can give same start-end, but the query will give you from start to end (so +1)
+            assert qr1.time_range().end <= time.end + TimeDelta(1*u.day)
 
 
 # Don't use time_attr here for speed.
@@ -109,3 +134,52 @@ def test_fido(time, instrument, wave):
     assert isinstance(qr, UnifiedResponse)
     response = Fido.fetch(qr)
     assert len(response) == qr._numfile
+    
+class TestNoRHClient(unittest.TestCase):
+    '''
+    This class will have the methods to test the functions above that make use 
+    of remote servers using mock objects. Should we make a class to insert
+    the mock tests with the structure featured below?
+    '''
+    
+    def setUp(self):
+        '''
+        This function will set up the attributes that will be tested by the 
+        other functions on this class.
+        '''
+        print('setUp')
+        # Creating an attribute of the NoRHClient class.
+        self.LCClient = norh.NoRHClient()
+        
+    def tearDown(self):
+        '''
+        If necessary this function will make a clean slate for further testing.
+        '''
+        pass
+    
+    def test_get(self):
+        '''
+        Here the test function that gets the data for norh will be tested.
+        '''
+        print('test_get')
+        
+        # Patching the LCClient.search
+        with patch('__main__.norh.NoRHClient.search') as mock_query:
+            qr1 = mock_query(time='YYYYMMDD', instrument='')
+        
+        
+
+if __name__ == '__main__':
+    '''
+    My test zone so I can execute the bits here.
+    This will be removed before merging.
+    
+    Notes:
+    @pytest.mark.remote_data marks tests that require data from the internet.
+    
+    Pytest remotedata from astropy:
+    https://github.com/astropy/pytest-remotedata
+    
+    '''
+    test_query_mock('2014-11-05: 13:00:00', 17)
+    
